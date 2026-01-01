@@ -16,7 +16,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Image from "next/image";
 import { checkUser } from "@/lib/checkUser";
 
 export default async function Header() {
@@ -26,13 +25,7 @@ export default async function Header() {
     <header className="fixed top-0 w-full border-b bg-background/80 backdrop-blur-md z-50 supports-[backdrop-filter]:bg-background/60">
       <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/">
-          <Image
-            src="/Logo.png"
-            alt="advAIseLogo"
-            width={150}
-            height={100}
-            className="h-18 py-1 w-auto object-contain"
-          />
+          <h1 className="text-4xl font-bold gradient-title">advAIse</h1>
         </Link>
 
         {/* Action Buttons */}
