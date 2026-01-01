@@ -8,8 +8,6 @@ import { revalidatePath } from "next/cache";
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({
   model: "gemini-2.5-flash",
-  // Remember to keep the JSON mode fix we discussed earlier!
-  generationConfig: { responseMimeType: "application/json" },
 });
 export async function saveResume(content) {
   const { userId } = await auth();
