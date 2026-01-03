@@ -1,4 +1,3 @@
-// app/resume/_components/entry-form.jsx
 "use client";
 
 import { useEffect, useState } from "react";
