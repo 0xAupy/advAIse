@@ -31,7 +31,8 @@ export default async function Header() {
         {/* Action Buttons */}
         <div className="flex items-center space-x-2 md:space-x-4">
           <SignedIn>
-            {/* FIX: Use asChild to merge the Link and Button, avoiding nested tag errors */}
+            {/* Industry Insights Button */}
+            {/* for mobile */}
             <Button
               variant="outline"
               className="hidden md:inline-flex items-center gap-2"
@@ -42,7 +43,7 @@ export default async function Header() {
                 Industry Insights
               </Link>
             </Button>
-
+            {/* for desktop */}
             <Button variant="ghost" className="md:hidden w-10 h-10 p-0" asChild>
               <Link href="/dashboard">
                 <LayoutDashboard className="h-4 w-4" />

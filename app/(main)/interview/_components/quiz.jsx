@@ -141,24 +141,8 @@ export default function Quiz() {
             </div>
           ))}
         </RadioGroup>
-
-        {showExplanation && (
-          <div className="mt-4 p-4 bg-muted rounded-lg">
-            <p className="font-medium">Explanation:</p>
-            <p className="text-muted-foreground">{question.explanation}</p>
-          </div>
-        )}
       </CardContent>
       <CardFooter className="flex justify-between">
-        {!showExplanation && (
-          <Button
-            onClick={() => setShowExplanation(true)}
-            variant="outline"
-            disabled={!answers[currentQuestion]}
-          >
-            Show Explanation
-          </Button>
-        )}
         <Button
           onClick={handleNext}
           disabled={!answers[currentQuestion] || savingResult}

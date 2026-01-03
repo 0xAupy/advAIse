@@ -16,22 +16,17 @@ export async function updateUser(data) {
   if (!user) throw new Error("User not found");
 
   try {
-    // 1. Check if industry exists first (OUTSIDE transaction)
-    // This prevents locking the database while we wait for AI
+    // 1. Check if industry exists first
     let industryInsight = await db.industryInsight.findUnique({
       where: {
         industry: data.industry,
       },
     });
 
-    // 2. If it doesn't exist, generate AI insights (STILL OUTSIDE transaction)
-    // This is the slow part that was causing the timeout
+    // 2. If it doesn't exist, generate AI insights
     if (!industryInsight) {
       const insights = await generateAIInsights(data.industry);
 
-      // Now we have the data, we can create it safely
-      // We use upsert inside the transaction just in case of race conditions
-      // (e.g. if two users trigger this at the exact same time)
       industryInsight = {
         industry: data.industry,
         ...insights,
@@ -39,7 +34,7 @@ export async function updateUser(data) {
       };
     }
 
-    // 3. NOW start the transaction (Fast database operations only)
+    // 3. NOW start the transaction
     const result = await db.$transaction(
       async (tx) => {
         // If we generated insights earlier, save them now

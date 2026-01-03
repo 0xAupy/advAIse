@@ -11,12 +11,15 @@ const isProtectedRoute = createRouteMatcher([
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
+  // auth is a clerk function that provides authentication details
 
   if (!userId && isProtectedRoute(req)) {
     const { redirectToSignIn } = await auth();
+    //  redirectToSignIn is a clerk function that redirects to the sign-in page
     return redirectToSignIn();
   }
 
+  // NextResponse.next() allows the request to proceed to the next middleware or route handler
   return NextResponse.next();
 });
 
