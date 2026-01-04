@@ -1,12 +1,7 @@
-import { getResume } from "@/actions/resume";
-import ResumeBuilder from "./_components/resume-builder";
+import React from "react";
 
-export default async function ResumePage() {
-  const resume = await getResume();
+const page = () => {
+  return <div>Resume Builder</div>;
+};
 
-  return (
-    <div className="container mx-auto py-6">
-      <ResumeBuilder initialContent={resume?.content} />
-    </div>
-  );
-}
+export default page;
