@@ -1,11 +1,14 @@
-export default function CoverLetterPreview({ coverLetter }) {
-  if (!coverLetter) return null;
+"use client";
 
+import React from "react";
+import MDEditor from "@uiw/react-md-editor";
+
+const CoverLetterPreview = ({ content }) => {
   return (
-    <div className="p-4 bg-gray-100 rounded whitespace-pre-line">
-      <h3 className="text-xl font-bold mb-2">{coverLetter.jobTitle}</h3>
-      <p className="mb-4 font-semibold">{coverLetter.companyName}</p>
-      <pre className="whitespace-pre-line">{coverLetter.content}</pre>
+    <div className="py-4">
+      <MDEditor value={content} preview="preview" height={700} />
     </div>
   );
-}
+};
+
+export default CoverLetterPreview;

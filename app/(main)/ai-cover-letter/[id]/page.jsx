@@ -1,42 +1,29 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import CoverLetterGenerator from "@/app/(main)/ai-cover-letter/_components/cover-letter-generator";
-import CoverLetterPreview from "@/app/(main)/ai-cover-letter/_components/cover-letter-preview";
+import { getCoverLetter } from "@/actions/cover-letter";
+import CoverLetterPreview from "../_components/cover-letter-preview";
 
-export default function NewCoverLetterPage() {
-  const router = useRouter();
-  const [generatedLetter, setGeneratedLetter] = useState(null);
-
-  // Callback for CoverLetterGenerator
-  const handleGenerated = (coverLetter) => {
-    setGeneratedLetter(coverLetter);
-  };
-
-  const handleGoToList = () => {
-    router.push("/ai-cover-letter");
-  };
+export default async function EditCoverLetterPage({ params }) {
+  const { id } = await params;
+  const coverLetter = await getCoverLetter(id);
 
   return (
-    <div className="p-4 space-y-6">
-      <div className="flex justify-between items-center mb-5">
-        <h1 className="text-4xl font-bold">Create New Cover Letter</h1>
-        <Button onClick={handleGoToList}>Back to List</Button>
+    <div className="container mx-auto py-6">
+      <div className="flex flex-col space-y-2">
+        <Link href="/ai-cover-letter">
+          <Button variant="link" className="gap-2 pl-0">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Cover Letters
+          </Button>
+        </Link>
+
+        <h1 className="text-6xl font-bold gradient-title mb-6">
+          {coverLetter?.jobTitle} at {coverLetter?.companyName}
+        </h1>
       </div>
 
-      {/* Generator Form */}
-      <CoverLetterGenerator onGenerated={handleGenerated} />
-
-      {/* Preview of Generated Letter */}
-      {generatedLetter && (
-        <div>
-          <h2 className="text-2xl font-bold mb-3">Preview</h2>
-          <CoverLetterPreview coverLetter={generatedLetter} />
-        </div>
-      )}
+      <CoverLetterPreview content={coverLetter?.content} />
     </div>
   );
 }
