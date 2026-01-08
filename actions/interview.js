@@ -5,9 +5,11 @@ import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
 const model = genAI.getGenerativeModel({
   model: "gemini-2.5-flash",
 });
+
 export async function generateQuiz() {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
@@ -44,17 +46,33 @@ export async function generateQuiz() {
     }
   `;
 
-  try {
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const text = response.text();
-    const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
-    const quiz = JSON.parse(cleanedText);
+  // RETRY LOGIC ADDED HERE
+  // We try up to 3 times to get a response if the server is overloaded (503)
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const result = await model.generateContent(prompt);
+      const response = result.response;
+      const text = response.text();
+      const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
+      const quiz = JSON.parse(cleanedText);
 
-    return quiz.questions;
-  } catch (error) {
-    console.error("Error generating quiz:", error);
-    throw new Error("Failed to generate quiz questions");
+      return quiz.questions;
+    } catch (error) {
+      console.error(`Attempt ${attempt} failed:`, error.message);
+
+      // If it's the last attempt or NOT a 503 error, throw it
+      const isOverloaded =
+        error.message.includes("503") || error.message.includes("Overloaded");
+
+      if (attempt === 3 || !isOverloaded) {
+        throw new Error(
+          "Failed to generate quiz questions. Please try again later."
+        );
+      }
+
+      // Wait before retrying (exponential backoff: 1s, 2s, etc.)
+      await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+    }
   }
 }
 
@@ -76,10 +94,7 @@ export async function saveQuizResult(questions, answers, score) {
     explanation: q.explanation,
   }));
 
-  // Get wrong answers
   const wrongAnswers = questionResults.filter((q) => !q.isCorrect);
-
-  // Only generate improvement tips if there are wrong answers
   let improvementTip = null;
   if (wrongAnswers.length > 0) {
     const wrongQuestionsText = wrongAnswers
@@ -90,24 +105,21 @@ export async function saveQuizResult(questions, answers, score) {
       .join("\n\n");
 
     const improvementPrompt = `
-      The user got the following ${user.industry} technical interview questions wrong:
-
-      ${wrongQuestionsText}
-
-      Based on these mistakes, provide a concise, specific improvement tip.
-      Focus on the knowledge gaps revealed by these wrong answers.
-      Keep the response under 2 sentences and make it encouraging.
-      Don't explicitly mention the mistakes, instead focus on what to learn/practice.
-    `;
+        The user got the following ${user.industry} technical interview questions wrong:
+  
+        ${wrongQuestionsText}
+  
+        Based on these mistakes, provide a concise, specific improvement tip.
+        Focus on the knowledge gaps revealed by these wrong answers.
+        Keep the response under 2 sentences and make it encouraging.
+        Don't explicitly mention the mistakes, instead focus on what to learn/practice.
+      `;
 
     try {
       const tipResult = await model.generateContent(improvementPrompt);
-
       improvementTip = tipResult.response.text().trim();
-      console.log(improvementTip);
     } catch (error) {
       console.error("Error generating improvement tip:", error);
-      // Continue without improvement tip if generation fails
     }
   }
 
