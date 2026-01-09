@@ -10,6 +10,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "advAIse - AI Career Coach",
+  // this is for SEO
   description: "",
 };
 
@@ -20,6 +21,7 @@ export default function RootLayout({ children }) {
         baseTheme: dark,
       }}
     >
+      {/* when server side theme doesnt match client side theme we get hydration warnings */}
       <html lang="en" suppressHydrationWarning>
         <head>
           <link rel="icon" href="/logo.png" sizes="any" />
@@ -37,7 +39,10 @@ export default function RootLayout({ children }) {
 
             <footer className="bg-muted/50 py-12">
               <div className="container mx-auto px-4 text-center text-gray-200">
-                <p>© 2026 Fariha Anjum Aupy. All rights reserved.</p>
+                <p>
+                  © {new Date().getFullYear()} Fariha Anjum Aupy. All rights
+                  reserved.
+                </p>
               </div>
             </footer>
           </ThemeProvider>

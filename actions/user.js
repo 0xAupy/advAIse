@@ -39,6 +39,7 @@ export async function updateUser(data) {
       async (tx) => {
         // If we generated insights earlier, save them now
         if (!industryInsight.id) {
+          // upsert creates a row if missing, updates if exists
           await tx.industryInsight.upsert({
             where: { industry: data.industry },
             update: {}, // If it exists, do nothing
@@ -64,7 +65,7 @@ export async function updateUser(data) {
         return { updatedUser };
       },
       {
-        timeout: 10000, // 10s is plenty now that AI is gone
+        timeout: 10000,
       }
     );
 
@@ -97,7 +98,7 @@ export async function getUserOnboardingStatus() {
     });
 
     return {
-      isOnboarded: !!user?.industry,
+      isOnboarded: !!user?.industry, //!! converts value to boolean
     };
   } catch (error) {
     console.error("Error checking onboarding status:", error);
